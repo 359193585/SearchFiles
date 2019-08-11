@@ -1,0 +1,310 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SearchWPF"        
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" x:Class="SearchWPF.MainWindow"
+        mc:Ignorable="d"
+        Title="Поиск файлов" x:Name="mainWindow" Height="500" Width="1200" MinWidth="760" MinHeight="350" Icon="Icon.ico"
+        WindowStyle="SingleBorderWindow"
+        
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}" 
+        >
+    <Window.DataContext>
+        <local:MainWindowViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="style.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding ClosingWindowCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <!--<RowDefinition Height="36"/>-->
+            <RowDefinition Height="105"/>
+            <RowDefinition Height="25"></RowDefinition>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+
+        <!--Управляющая часть-->
+        <WrapPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 5 0 0">
+            <GroupBox Header="Расширение файла"
+                Style="{DynamicResource MaterialDesignGroupBox}"
+                Margin="5"
+                MinWidth="150"
+                SnapsToDevicePixels="True">
+                <!--<TextBox Text="{Binding ExtensionFile, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding FileExtensionIsEnabled, UpdateSourceTrigger=PropertyChanged}"></TextBox>-->
+                <ComboBox
+                    ItemsSource="{Binding FileExtensionAssociations, UpdateSourceTrigger=PropertyChanged}"
+                    SelectedValue="{Binding SelectedFileExtensionAssociation, UpdateSourceTrigger=LostFocus}"
+                    DisplayMemberPath="Name"
+                    materialDesign:HintAssist.Hint=".mp3 .txt,.exe"
+                    IsEditable="True"
+                    materialDesign:HintAssist.HintOpacity=".26"
+                    Text="{Binding ExtensionFile}"                    
+                    >
+                </ComboBox>
+            </GroupBox>
+            <GroupBox Header="Слово или фраза для поиска"
+                      Margin="5">
+                <TextBox 
+                    Text="{Binding WordInFile, UpdateSourceTrigger=LostFocus}" 
+                    IsEnabled="{Binding WordInFileIsEnabled}"
+                    MaxWidth="200"></TextBox>
+            </GroupBox>
+            <GroupBox Header="Диски"
+                    Style="{DynamicResource MaterialDesignGroupBox}"
+                    Margin="5"
+                    MinWidth="150"
+                    SnapsToDevicePixels="True">
+                <ComboBox ItemsSource="{Binding DriveInfos}" 
+                          SelectedValue="{Binding SelectedDrive, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" 
+                          IsEnabled="{Binding DisksComboBoxIsEnabled}"
+                          MinWidth="100" 
+                          HorizontalAlignment="Center">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="DropDownOpened">
+                            <i:InvokeCommandAction Command="{Binding DropDownDisksOpenedCommand}"></i:InvokeCommandAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} {1}">
+                                        <Binding Path="Name"/>
+                                        <Binding Path="VolumeLabel"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </GroupBox>
+            <GroupBox Header="Управление поиском"
+                    Style="{DynamicResource MaterialDesignGroupBox}"
+                    Margin="5"
+                    SnapsToDevicePixels="True"
+                    >
+                <StackPanel>
+                    <UniformGrid Columns="2">
+                        <Button Content="Старт" Margin="2" Command="{Binding StartSearchCommand}" IsEnabled="{Binding StartSearchIsEnabled}"></Button>
+                        <Button Content="Стоп" Margin="2" Command="{Binding StopSearchCommand}" IsEnabled="{Binding StopSearchIsEnabled}"></Button>
+                    </UniformGrid>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Подпапки"
+                    Style="{DynamicResource MaterialDesignGroupBox}"
+                    Margin="5"
+                    SnapsToDevicePixels="True" Height="88">
+                <ToggleButton
+                    Style="{StaticResource MaterialDesignSwitchDarkToggleButton}"                       
+                    IsChecked="{Binding RecourciveSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="25"/>
+            </GroupBox>
+
+            <GroupBox Header="Тема"
+                    Style="{DynamicResource MaterialDesignGroupBox}"
+                    Margin="5"
+                    SnapsToDevicePixels="True"                    
+                      >
+                <StackPanel>
+                    <!--темный/светлый цвет-->
+                    <StackPanel Orientation="Horizontal" Margin="8">
+                        <TextBlock VerticalAlignment="Center">Светлая</TextBlock>
+                        <ToggleButton Margin="8 0 16 0" IsChecked="{Binding IsDarkColor}" />
+                        <TextBlock VerticalAlignment="Center">Темная</TextBlock>
+                    </StackPanel>
+                    
+                </StackPanel>
+            </GroupBox>
+
+
+            <GroupBox Header="Цвета"
+                    Style="{DynamicResource MaterialDesignGroupBox}"
+                    Margin="5"
+                    SnapsToDevicePixels="True"
+                      >
+                <ComboBox ItemsSource="{Binding Swatches}" 
+                          SelectedValue="{Binding SelectedSwatchPrimaryColor}"
+                          MinWidth="100"
+                          HorizontalContentAlignment="Center">
+                </ComboBox>
+            </GroupBox>
+
+            <!--materialDesign:ColorZoneAssist.Mode-->
+        </WrapPanel>
+
+        <ProgressBar Grid.Row="1" Margin="10 0 10 0" Height="7" IsIndeterminate="{Binding ProcessSearch}" Value="0" ></ProgressBar>
+
+
+        <!--Результат поиска-->
+        <DataGrid Grid.Row="2"
+            ItemsSource="{Binding Path=FilesCollection}"
+            SelectedValue="{Binding SelectedItemResult, UpdateSourceTrigger=PropertyChanged}"            
+            Margin="0 8 0 0"
+            CanUserSortColumns="True"
+            CanUserAddRows="False"
+            IsReadOnly="True"
+            AutoGenerateColumns="False"
+            SelectionUnit="FullRow"
+            materialDesign:DataGridAssist.CellPadding="13 8 8 8"
+            materialDesign:DataGridAssist.ColumnHeaderPadding="8"
+            >
+            <DataGrid.ContextMenu>
+                <ContextMenu Opacity="0.85">
+                    <MenuItem Header="Открыть файл" Command="{Binding OpenFileCommand}"></MenuItem>
+                    <MenuItem Header="Открыть папку с файлом" Command="{Binding OpenFolderCommand}"></MenuItem>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <DataGrid.Columns>
+                <!--<DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <StackPanel.Background>
+                                    <shell:ImageBrush ImageSource="{Binding ImageItem}"></shell:ImageBrush>
+                                </StackPanel.Background>
+                            </StackPanel>                  
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>-->
+                <materialDesign:MaterialDataGridTextColumn Header="Название"            Width="200" Binding="{Binding Name}"/>
+                <materialDesign:MaterialDataGridTextColumn Header="Размер"              Width="100" Binding="{Binding Size}"/>
+                <materialDesign:MaterialDataGridTextColumn Header="Дата создания"       Width="150" Binding="{Binding CreationTime}"/>
+                <materialDesign:MaterialDataGridTextColumn Header="Дата модификации"    Width="160" Binding="{Binding ModifyTime}"/>
+                <materialDesign:MaterialDataGridTextColumn Header="Аттрибуты"           Width="150" Binding="{Binding Attributes}"/>
+                <materialDesign:MaterialDataGridTextColumn Header="Полный путь к файлу" Width="350" Binding="{Binding FullPath}"/>
+            </DataGrid.Columns>
+
+            <!--Двойной клик по элементу-->
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding OpenFileCommand}"></i:InvokeCommandAction>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </DataGrid>
+
+        <!--Footer, StatusBar-->
+        <Grid Grid.Row="3" Margin="4 0 3 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20"/>      <!--Иконка-->
+                <ColumnDefinition Width="*"/>    <!--Состояние-->
+                <ColumnDefinition Width="135"/>     <!--Работающих потоков:-->
+                <ColumnDefinition Width="35"/>      <!--Число-->
+                <!--<ColumnDefinition Width="0"/>     --><!--Реализация многопоточности--><!--
+                <ColumnDefinition Width="0"/>-->
+                <ColumnDefinition Width="150"/>     <!--Затраченное время-->
+                <ColumnDefinition Width="110"/>
+                <ColumnDefinition Width="135"/>     <!--Найдено файлов-->
+                <ColumnDefinition Width="65"/>
+                <ColumnDefinition Width="35"/>
+            </Grid.ColumnDefinitions>
+            <Image Grid.Column="0" Source="Icon.ico" Width="{Binding Width, RelativeSource={RelativeSource Mode=TemplatedParent}}"/>
+
+            <!--Состояние-->
+            <TextBlock Grid.Column="1" Text="{Binding CurrentState}" Margin="5 0 2 0" HorizontalAlignment="Left"/>
+
+            <TextBlock Grid.Column="2" Text="Работающих потоков:"/>
+            <!--Работающие потоки-->
+            <TextBlock Grid.Column="3" Text="{Binding CountWorkingThreads}" Margin="1 0 2 0"/>
+
+            <!--<TextBlock Grid.Column="4" Text="Реализация многопоточности:" Margin="25 0 0 0"></TextBlock>
+            --><!--Реализация многопоточности--><!--
+            <TextBlock Grid.Column="5" Text="{Binding SearchTechnology.Name, UpdateSourceTrigger=PropertyChanged}"></TextBlock>-->
+
+            <TextBlock Grid.Column="4" Text="Затраченное время:" Margin="25 0 0 0"/>
+            <!--Затраченное время-->
+            <TextBlock Grid.Column="5" Text="{Binding WorkingTime}" />
+
+            <TextBlock Grid.Column="6" Text="Найдено файлов:" Margin="25 0 0 0"/>
+            <!--Найдено файлов-->
+            <TextBlock Grid.Column="7" Text="{Binding FilesCollection.Count}" />
+
+
+            <Menu Grid.Column="8">
+                <MenuItem Height="25" Padding="2" >
+                    <MenuItem.Header>
+                        <materialDesign:PackIcon Kind="Settings"/>
+                    </MenuItem.Header>
+
+                    <MenuItem>
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Поиск внутри текстовых файлов" VerticalAlignment="Center" Margin="0 0 3 0"/>
+                                <!--Количество потоков-->
+                                <ToggleButton Margin="3 0 0 0"
+                                        Style="{StaticResource MaterialDesignSwitchDarkToggleButton}"                       
+                                        IsChecked="{Binding SearchInTextFile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+
+                    <MenuItem>
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Количество потоков" VerticalAlignment="Center" Margin="0 0 3 0"/>
+                                <!--Количество потоков-->
+                                <TextBox 
+                                        Text="{Binding MaxCountThreadsStr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                        IsEnabled="{Binding IsEnabledMaxCountThreads, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        VerticalAlignment="Center" 
+                                        Margin="3 0 0 0"/>
+                            </StackPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+
+                    <MenuItem Header="Реализация многопоточности">
+                        <!--Реализация многопоточности-->
+                        <ComboBox 
+                                ItemsSource="{Binding TypesMultiThreading}" 
+                                DisplayMemberPath="Name" 
+                                SelectedValue="{Binding SearchTechnology, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                IsEnabled="{Binding TypeMultiThreadingIsEnabled}">
+
+                        </ComboBox>
+                        <!--Инструкция по выбору реализации-->
+                        <MenuItem
+                                Header="Инструкция по выбору реализации"
+                                Command="{Binding ShowHelpTypeMultithreadingCommand}"
+                                CommandParameter="{Binding ElementName=mainWindow}">
+                        </MenuItem>
+                    </MenuItem>
+
+
+
+                </MenuItem>
+            </Menu>
+
+
+        </Grid>
+    </Grid>
+</Window>
+
+
+
+
+
+
