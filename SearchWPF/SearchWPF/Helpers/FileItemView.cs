@@ -13,24 +13,12 @@ namespace SearchWPF
 {
     public class FileItemView : INotifyPropertyChanged
     {
-
-        //private Icon img = null;
         private string _name = string.Empty;
         private string _size = string.Empty;
         private string _creationTime = string.Empty;
         private string _modifyTime = string.Empty;
         private string _attributes = string.Empty;
         private string _fullPath = string.Empty;
-
-        //public Icon ImageItem
-        //{
-        //    get => img;
-        //    set
-        //    {
-        //        img = value;
-        //        RaisePropertyChanged(nameof(ImageItem));
-        //    }
-        //}
                 
         public string Name
         {
@@ -91,8 +79,6 @@ namespace SearchWPF
                 RaisePropertyChanged(nameof(FullPath));
             }
         }
-
-
 
         public void RaisePropertyChanged(string propertyName)
         {
