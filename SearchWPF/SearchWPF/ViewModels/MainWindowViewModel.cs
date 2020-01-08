@@ -538,8 +538,7 @@ namespace SearchWPF
         //Начать поиск
         public ActionCommand StartSearchCommand { get; private set; }
         void StartSearchCommandExecute(object state)
-        {
-            
+        {            
             if (SelectedDrive == null)
             {
                 CurrentState = "Не выбран путь/диск для поиска";
@@ -605,6 +604,8 @@ namespace SearchWPF
             CurrentState = "Поиск останавливается... Подождите...";
            
             StopSearchIsEnabled = false;
+
+            //Helpers.StackTrace.Save("D:\\StackTrace.txt");
         }
         bool StopSearchCommandCanExecute(object state)
         {
@@ -682,7 +683,7 @@ namespace SearchWPF
         public ActionCommand ClosingWindowCommand { get; private set; }
         void ClosingWindowCommandExecute(object state)
         {
-            SaveOptions();
+            SaveOptions();           
         }
 
         #endregion
